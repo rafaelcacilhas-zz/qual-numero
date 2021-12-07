@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="en">
+
+    <head>
+        <meta charset="UTF-8">
+        <link rel="preconnect" href="https://fonts.googleapis.com">
+        <link rel="preconnect" href="https://fonts.googleapis.com">
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@700&family=Roboto:wght@400;700&display=swap" rel="stylesheet">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <meta http-equiv="X-UA-Compatible" content="ie=edge">
+        <title>Qual é o número</title>
+        <link rel="stylesheet" href="style.css">        
+        <script  type="module" src="index.js"></script>                     
+        <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+
+    </head>
+
+    <body>
+
+        <script >
+
+            // Aqui definiremos as funções usadas no programa
+            // A requisição do número aleatório é feita em index.js
+
+
+            function desenhaBotao() {   // Desenha o botão "nova partida"
+
+                let botao = `
+                <button onclick="document.location.reload(true)" id = "botao-partida"> 
+                    <img class="icons" src="img/icone-refresh.png">
+                    <p id="texto-partida">NOVA PARTIDA </p>
+                </button>
+                `
+
+                document.querySelector('#nova-partida').innerHTML = botao;
+
+
+                // Redesenha o input com o placeholder
+                let novoInput = `
+                <input  id = "enviar-form" type="text"  placeholder="Digite o palpite"> 
+                <button id = "botao-enviar" onclick="enviarForm()"> <p id="texto-enviar">ENVIAR </p></button>
+                `
+                document.querySelector('.footer').innerHTML = novoInput;
+
+        }
+
+            function desenhaMensagem(numeroUsuario){        // Desenha a mensagem textual
+                
+
+                let mensagem = ` `
+
+                if(numeroUsuario == numeroCerto) {      
+                    mensagem = `
+                    <spam>
+                        <p id="texto-tela-acerto"> Acertou!</p> 
+                    </spam>
+                `                }
+                else if(numeroUsuario > numeroCerto) {  
+                    mensagem = `
+                    <spam>
+                        <p id="texto-tela"> É menor</p> 
+                    </spam>
+                `                }
+                else if(numeroUsuario < numeroCerto){   
+                    mensagem = `
+                    <spam>
+                        <p id="texto-tela"> É maior</p> 
+                    </spam>
+                `                }
+
+                document.querySelector('#alinha').innerHTML = mensagem;
+
+            }
+
+            function desenhaNumero(centena, dezena, unidade,numeroUsuario){     // Desenha o número escolhido
+
+                /*A maneira mais simples de desenhar "em led" é, de longe,
+                tratando eles como imagens e chamando as imagens corretas.
+                Daria um trabalho extremo criar cada uma das sete partes individuais com CSS 
+                e nenhuma vantagem seria obtida com isso. É muito mais simples salva-los como imagens
+                e chamar o arquivo correto.
+                */
+
+
+                /* Nossa função de desenho recebe o algarismo das centenas, 
+                dezenas e unidades separadamente e baseado nisso chama 
+                as imagens adequadas
+                */
+
+                let imagens = ''
+
+                if( Number(numeroUsuario) != Number(numeroCerto)    ){      // Em caso de erro
+                    imagens = `
+                        <spam>
+                        <img  src=\"img/${centena}.png\" />
+                        <img  src=\"img/${dezena}.png\" />
+                        <img  src=\"img/${unidade}.png\" />
+                        </spam>
+                    `
+
+                    //Aqui evitaremos de desenhar o 0 da centena...
+                    if(centena == 0) {
+                        imagens = `
+                        <spam>
+                        <img src=\"img/${dezena}.png\" />
+                        <img src=\"img/${unidade}.png\" />
+                        </spam>
+                    `      
+                        //... e da dezena
+                        if(dezena == 0){
+                            imagens = `
+                            <spam>
+                            <img src=\"img/${unidade}.png\" />
+                            </spam>
+                            `      
+                        }
+                    } 
+                }
+                else if (   Number(numeroUsuario) == Number(numeroCerto)    ){   //Chama a versão verde
+                    console.log('igual')
+                    imagens = `
+                        <spam>
+                        <img  src=\"img/${centena}_verde.png\" />
+                        <img  src=\"img/${dezena}_verde.png\" />
+                        <img  src=\"img/${unidade}_verde.png\" />
+                        </spam>
+                    `
+
+                    //Aqui evitaremos de desenhar o 0 da centena...
+                    if(centena == 0) {
+                        imagens = `
+                        <spam>
+                        <img src=\"img/${dezena}_verde.png\" />
+                        <img src=\"img/${unidade}_verde.png\" />
+                        </spam>
+                    `      
+                        //... e da dezena
+                        if(dezena == 0){
+                            imagens = `
+                            <spam>
+                            <img src=\"img/${unidade}_verde.png\" />
+                            </spam>
+                            `      
+                        }
+                    }
+
+                }
+
+                document.querySelector('#numeroplaceholder').innerHTML = imagens;
+            }
+
+            function enviarForm() {     // Envia o chute do usuario
+                let numeroUsuario = Number(document.querySelector('#enviar-form').value);   // Garante que a entrada é um número
+
+                if(isNaN(numeroUsuario) ){       // Caso o usuario não digite um número define como zero para evitar erros
+                    numeroUsuario = 0               
+                    const aviso = true          // e ativa um aviso para o usuario ao final da função
+                } 
+
+                const centena = Math.floor(     numeroUsuario/100                       )       // Pega o algarismo das centenas
+                const dezena =  Math.floor(     (numeroUsuario - centena*100)  / 10       )     // Pega o algarismo das dezenas
+                const unidade = Math.floor(     (numeroUsuario- centena*100 - dezena*10) )      // Pega o algarismo das unidades
+                
+
+                desenhaMensagem(numeroUsuario)                              // Chamamos a função para desenhar a mensagem
+                desenhaNumero(centena,dezena,unidade,numeroUsuario)         // Chamamos a função pra desenhar o número
+                desenhaBotao()                                              // Chamamos a função para desenhar o botão de Nova Partida
+
+
+                if(aviso = true ){       // Pede ao usuario para digitar um número
+
+                    const erroNaN = `
+                    <spam>
+                        <p id="texto-tela-erro"> DIGITE UM NÚMERO</p> 
+                    </spam>
+                    `    
+                    
+                    const imagemErro = `
+                            <spam>
+                            <img src=\"img/0_vermelho.png\" />
+                            </spam>
+                            `      
+
+
+                    document.querySelector('#numeroplaceholder').innerHTML = imagemErro;
+                    document.querySelector('#alinha').innerHTML = erroNaN;
+                } 
+            }
+
+        </script>
+
+
+        <div class="container">
+
+            <div class = "titulo">
+
+                <p      id= "titulo-texto"> QUAL É O NÚMERO?  </p>
+                <div    id = "barra">                   </div>
+
+            </div>
+
+
+            <div class = "tela">
+
+                <div id="alinha">       
+                    <spam>
+                        <p id="texto-tela"> Digite um número entre 1 e 300</p> 
+                    </spam>                
+                </div>
+
+                <div id = "numeroplaceholder">
+                    <img  src="img/0.png" />
+                    <img  src="img/L.png" />
+                    <img  src="img/A.png" />
+
+
+                </div>
+
+
+            </div>
+
+            <div id="nova-partida">
+
+            </div>
+
+            <div class = "footer">
+
+                <input  id = "enviar-form" type="text"  placeholder="Digite o palpite"> 
+                <button id = "botao-enviar" onclick="enviarForm()"> <p id="texto-enviar">ENVIAR </p></button>
+
+            </div>
+
+
+
+
+
+        </div>
+    </body>
+
+
+
+
+</html>
